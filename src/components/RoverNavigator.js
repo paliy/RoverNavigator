@@ -5,8 +5,11 @@ import {
   LineElement,
   PointElement,
 } from 'chart.js';
-import React, { useState } from 'react';
-import { Line } from 'react-chartjs-2';
+import React, { useCallback, useState } from 'react';
+
+import { executeCommands, isValidPosition } from '../helpers';
+import RoverPathChart from './RoverPathChart';
+import TextAreaInput from './TextAreaInput';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement);
 
@@ -24,60 +27,14 @@ const RoverNavigator = () => {
       return;
     }
 
-    const upperRightCoords = lines[0].split(' ').map(Number);
-    const plateauMaxX = upperRightCoords[0];
-    const plateauMaxY = upperRightCoords[1];
-
-    const leftTurn = { N: 'W', W: 'S', S: 'E', E: 'N' };
-    const rightTurn = { N: 'E', E: 'S', S: 'W', W: 'N' };
-    const moveForward = {
-      N: [0, 1],
-      E: [1, 0],
-      S: [0, -1],
-      W: [-1, 0],
-    };
-
-    const isValidPosition = (x, y) => {
-      return x >= 0 && x <= plateauMaxX && y >= 0 && y <= plateauMaxY;
-    };
-
-    const executeCommands = (x, y, orientation, commands) => {
-      const path = [[x, y]];
-      for (let command of commands) {
-        if (command === 'L') {
-          orientation = leftTurn[orientation];
-        } else if (command === 'R') {
-          orientation = rightTurn[orientation];
-        } else if (command === 'M') {
-          const [dx, dy] = moveForward[orientation];
-          const newX = x + dx;
-          const newY = y + dy;
-          if (isValidPosition(newX, newY)) {
-            x = newX;
-            y = newY;
-            path.push([x, y]);
-          }
-        }
-      }
-      return path;
-    };
-
+    const [plateauMaxX, plateauMaxY] = lines[0].split(' ').map(Number);
     const results = [];
     const paths = [];
-    for (let i = 1; i < lines.length; i += 2) {
-      const initialPosition = lines[i].split(' ');
-      if (initialPosition.length !== 3) {
-        setOutputData(
-          'Invalid rover position. Please provide valid coordinates and orientation.',
-        );
-        return;
-      }
 
-      let [x, y, orientation] = initialPosition;
-      x = parseInt(x);
-      y = parseInt(y);
+    for (let i = 1; i < lines.length; i += 2) {
+      const [x, y, orientation] = lines[i].split(' ');
       if (
-        !isValidPosition(x, y) ||
+        !isValidPosition(parseInt(x), parseInt(y), plateauMaxX, plateauMaxY) ||
         !['N', 'E', 'S', 'W'].includes(orientation)
       ) {
         setOutputData(
@@ -85,14 +42,20 @@ const RoverNavigator = () => {
         );
         return;
       }
-
       const commands = lines[i + 1];
       if (!/^[LRM]*$/.test(commands)) {
         setOutputData('Invalid commands. Only L, R, and M are allowed.');
         return;
       }
 
-      const path = executeCommands(x, y, orientation, commands);
+      const path = executeCommands(
+        parseInt(x),
+        parseInt(y),
+        orientation,
+        commands,
+        plateauMaxX,
+        plateauMaxY,
+      );
       paths.push(path);
       results.push(
         `${path[path.length - 1][0]} ${path[path.length - 1][1]} ${orientation}`,
@@ -117,51 +80,30 @@ const RoverNavigator = () => {
     });
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = useCallback((e) => {
     setInputData(e.target.value);
-  };
+  }, []);
 
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    navigateRovers(inputData);
-  };
+  const handleFormSubmit = useCallback(
+    (e) => {
+      e.preventDefault();
+      navigateRovers(inputData);
+    },
+    [inputData],
+  );
 
   return (
     <div>
       <h1>Mars Rover Navigator</h1>
       <form onSubmit={handleFormSubmit}>
-        <textarea
-          value={inputData}
-          onChange={handleInputChange}
-          rows='10'
-          cols='50'
-          placeholder='Enter the input data...'
-        />
+        <TextAreaInput value={inputData} onChange={handleInputChange} />
         <br />
         <button type='submit'>Navigate Rovers</button>
       </form>
       <h2>Output:</h2>
       <pre role='region'>{outputData}</pre>
 
-      {chartData && (
-        <div>
-          <h2>Rover Path Chart</h2>
-          <Line
-            data={chartData}
-            options={{
-              scales: {
-                x: {
-                  type: 'linear',
-                  position: 'bottom',
-                },
-                y: {
-                  beginAtZero: true,
-                },
-              },
-            }}
-          />
-        </div>
-      )}
+      {chartData && <RoverPathChart chartData={chartData} />}
     </div>
   );
 };
