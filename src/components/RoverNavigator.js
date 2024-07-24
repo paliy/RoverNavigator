@@ -1,8 +1,19 @@
+import {
+  CategoryScale,
+  Chart as ChartJS,
+  LinearScale,
+  LineElement,
+  PointElement,
+} from 'chart.js';
 import React, { useState } from 'react';
+import { Line } from 'react-chartjs-2';
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement);
 
 const RoverNavigator = () => {
   const [inputData, setInputData] = useState('');
   const [outputData, setOutputData] = useState('');
+  const [chartData, setChartData] = useState(null);
 
   const navigateRovers = (input) => {
     const lines = input.trim().split('\n');
@@ -31,6 +42,7 @@ const RoverNavigator = () => {
     };
 
     const executeCommands = (x, y, orientation, commands) => {
+      const path = [[x, y]];
       for (let command of commands) {
         if (command === 'L') {
           orientation = leftTurn[orientation];
@@ -43,13 +55,15 @@ const RoverNavigator = () => {
           if (isValidPosition(newX, newY)) {
             x = newX;
             y = newY;
+            path.push([x, y]);
           }
         }
       }
-      return `${x} ${y} ${orientation}`;
+      return path;
     };
 
     const results = [];
+    const paths = [];
     for (let i = 1; i < lines.length; i += 2) {
       const initialPosition = lines[i].split(' ');
       if (initialPosition.length !== 3) {
@@ -78,10 +92,29 @@ const RoverNavigator = () => {
         return;
       }
 
-      results.push(executeCommands(x, y, orientation, commands));
+      const path = executeCommands(x, y, orientation, commands);
+      paths.push(path);
+      results.push(
+        `${path[path.length - 1][0]} ${path[path.length - 1][1]} ${orientation}`,
+      );
     }
 
     setOutputData(results.join('\n'));
+
+    const chartPathData = paths.flat();
+    setChartData({
+      labels: chartPathData.map((_, index) => index + 1),
+      datasets: [
+        {
+          label: 'Rover Path',
+          data: chartPathData.map(([x, y]) => ({ x, y })),
+          borderColor: 'rgba(75, 192, 192, 1)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          fill: false,
+          pointRadius: 5,
+        },
+      ],
+    });
   };
 
   const handleInputChange = (e) => {
@@ -109,6 +142,26 @@ const RoverNavigator = () => {
       </form>
       <h2>Output:</h2>
       <pre role='region'>{outputData}</pre>
+
+      {chartData && (
+        <div>
+          <h2>Rover Path Chart</h2>
+          <Line
+            data={chartData}
+            options={{
+              scales: {
+                x: {
+                  type: 'linear',
+                  position: 'bottom',
+                },
+                y: {
+                  beginAtZero: true,
+                },
+              },
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 };
