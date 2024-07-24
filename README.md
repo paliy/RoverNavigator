@@ -1,70 +1,75 @@
-# Getting Started with Create React App
+The Mars Rover Navigator is a React application designed to simulate the navigation of robotic rovers on a plateau on Mars. The application allows users to input rover commands and view the final positions of the rovers on a chart.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Features
 
-## Available Scripts
+- Input the plateau size and rover navigation instructions.
+- Simulate rover movements based on commands (L, R, M).
+- Visualize rover paths using a chart.
 
-In the project directory, you can run:
+## Installation
 
-### `npm start`
+To set up and run the project locally, follow these steps:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+1. **Clone the Repository**
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+   ```bash
+   git clone https://github.com/your-username/mars-rover-navigator.git
+   cd mars-rover-navigator
+   ```
 
-### `npm test`
+2. **Install Dependencies**
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+   ```bash
+   npm install
+   ```
 
-### `npm run build`
+3. **_Usage_**
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+  Entering Input Data
+    1. Open the Application
+       Navigate to http://localhost:3000 in your browser.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+    2. Input Data Format
+      Plateau Coordinates: The first line should contain two integers representing the upper-right coordinates of the plateau. Example: 5 5.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+      Rover Positions and Commands:
+        2.1. Each rover's initial position is specified on a new line, followed by a line of commands.
+        2.2. Initial Position: Consists of two integers (x, y) and a character indicating the direction (N, E, S, W). Example: 1 2 N.
+        2.3. Commands: A string of commands where L turns the rover left, R turns the rover right, and M moves the rover forward. Example: LMLMLMLMM.
 
-### `npm run eject`
+      Example Input:
+        5 5
+        1 2 N
+        LMLMLMLMM
+        3 3 E
+        MMRMMRMRRM
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+    3. Submitting Data
+       Enter Data: Paste the input data into the textarea labeled "Enter the input data...".
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+       Submit: Click the "Navigate Rovers" button to process the input data.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+    4. Viewing Results
+       Output: The final positions and orientations of the rovers will be displayed in the "Output:" section.
+       Example Output:
+        1 3 N
+        5 1 E
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+    5.Chart: A chart displaying the rover paths will appear below the output section. This visual representation helps to understand the rover's movements across the plateau.
+```
 
-## Learn More
+4. **_Testing_**
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+To run the tests for the application, use the following command:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+ npm test
+```
 
-### Code Splitting
+This will execute the test suite and check the functionality of the rover navigation logic and UI components.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Testing Details
 
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Components: Tests ensure that input data is processed correctly and output is displayed as expected.
+Chart: The chart component is mocked during testing to focus on functional aspects.
